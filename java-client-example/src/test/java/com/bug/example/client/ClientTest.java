@@ -19,12 +19,23 @@ public class ClientTest {
 
     @Test
     public void testConnectWithOpenSSLProvider() throws Exception {
-        Client.connectWithOpenSSLProvider();
+        // OpenSSLProvider from Conscrypt can handle certificate_authorities
+        // extension with a empty list of authorities
+        assertDoesNotThrow(() -> Client.connectWithOpenSSLProvider());
     }
 
     @Test
     public void testConnectWithDefaultProvider() throws Exception {
-        Client.connectWithDefaultProvider();
+        // Java default security provider cannot handle certificate_authorities
+        // extension with a empty list of authorities
+        try {
+            Client.connectWithDefaultProvider();
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail("Java default security provider cannot handle certificate_authorities"
+                    + " extension with a empty list of authorities", e);
+        }
+
     }
 
     @Test
