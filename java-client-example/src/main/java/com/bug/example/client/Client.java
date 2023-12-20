@@ -62,10 +62,10 @@ public class Client {
         // Start the handshake with the server
         sslSocket.startHandshake();
         SSLSession session = sslSocket.getSession();
-        System.out.println("Cipher Suite: " + session.getCipherSuite());
-        System.out.println("Protocol: " + session.getProtocol());
-        System.out.println("Peer Host: " + session.getPeerHost());
-        System.out.println("Peer Port: " + session.getPeerPort());
+        System.out.println("[JAVA] Cipher Suite: " + session.getCipherSuite());
+        System.out.println("[JAVA] Protocol: " + session.getProtocol());
+        System.out.println("[JAVA] Peer Host: " + session.getPeerHost());
+        System.out.println("[JAVA] Peer Port: " + session.getPeerPort());
 
         sslSocket.close();
     }

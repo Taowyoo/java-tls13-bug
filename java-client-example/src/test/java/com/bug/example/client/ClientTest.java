@@ -14,7 +14,7 @@ public class ClientTest {
         // Reset the security providers before each test
         Security.removeProvider(Client.OPENSSL_PROVIDER_NAME);
         String displayName = testInfo.getDisplayName();
-        System.out.println("Testing: " + displayName);
+        System.out.println("[JAVA] Testing: " + displayName);
     }
 
     @Test
