@@ -10,6 +10,7 @@ use std::io::Write;
 use std::sync::Arc;
 
 use docopt::Docopt;
+use rustls::server::danger::ClientCertVerifier;
 use serde_derive::Deserialize;
 
 use rustls::pki_types::{CertificateDer, PrivateKeyDer, PrivatePkcs8KeyDer};
@@ -95,6 +96,46 @@ fn main() {
     }
 }
 
+#[derive(Debug)]
+struct CustomizedClientVerifier(Arc<dyn ClientCertVerifier>);
+
+impl ClientCertVerifier for CustomizedClientVerifier {
+    fn root_hint_subjects(&self) -> &[rustls::DistinguishedName] {
+        &[]
+    }
+
+    fn verify_client_cert(
+        &self,
+        _end_entity: &CertificateDer<'_>,
+        _intermediates: &[CertificateDer<'_>],
+        _now: rustls::pki_types::UnixTime,
+    ) -> Result<rustls::server::danger::ClientCertVerified, rustls::Error> {
+        Ok(rustls::server::danger::ClientCertVerified::assertion())
+    }
+
+    fn verify_tls12_signature(
+        &self,
+        _message: &[u8],
+        _cert: &CertificateDer<'_>,
+        _dss: &rustls::DigitallySignedStruct,
+    ) -> Result<rustls::client::danger::HandshakeSignatureValid, rustls::Error> {
+        Ok(rustls::client::danger::HandshakeSignatureValid::assertion())
+    }
+
+    fn verify_tls13_signature(
+        &self,
+        _message: &[u8],
+        _cert: &CertificateDer<'_>,
+        _dss: &rustls::DigitallySignedStruct,
+    ) -> Result<rustls::client::danger::HandshakeSignatureValid, rustls::Error> {
+        Ok(rustls::client::danger::HandshakeSignatureValid::assertion())
+    }
+
+    fn supported_verify_schemes(&self) -> Vec<rustls::SignatureScheme> {
+        self.0.supported_verify_schemes()
+    }
+}
+
 /// A test PKI with a CA certificate, server certificate, and client certificate.
 struct TestPki {
     roots: Arc<RootCertStore>,
@@ -169,9 +210,10 @@ impl TestPki {
     /// must know ahead of time which CRLs it cares about.
     fn server_config(&self, _hello: ClientHello) -> Arc<ServerConfig> {
         // Construct a fresh verifier using the test PKI roots, and the updated CRL.
-        let verifier = WebPkiClientVerifier::builder(self.roots.clone())
+        let web_pki_verifier = WebPkiClientVerifier::builder(self.roots.clone())
             .build()
             .unwrap();
+        let verifier = Arc::new(CustomizedClientVerifier(web_pki_verifier));
 
         // Build a server config using the fresh verifier. If necessary, this could be customized
         // based on the ClientHello (e.g. selecting a different certificate, or customizing
