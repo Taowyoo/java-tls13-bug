@@ -2,7 +2,7 @@
 
 # run server
 pushd rust-server-example
-cargo run &
+RUST_LOG=trace cargo run &
 server_pid="$!"
 echo "Rust TLS server is running at localhost:4443, pid: $server_pid"
 popd

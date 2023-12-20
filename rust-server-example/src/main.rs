@@ -18,6 +18,7 @@ use rustls::server::{Acceptor, ClientHello, ServerConfig, WebPkiClientVerifier};
 use rustls::RootCertStore;
 
 fn main() {
+    env_logger::init();
     let version = concat!(
         env!("CARGO_PKG_NAME"),
         ", version: ",
