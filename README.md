@@ -17,3 +17,4 @@ sudo apt install -y openjdk-11-jdk maven cargo
 1. In a terminal, run `RUST_LOG=trace cargo run` under [rust-server-example](./rust-server-example/).
 2. In another terminal, run `mvn test` under [java-client-example](./java-client-example/).
 3. You could see the java test `testConnectWithDefaultProvider` failed. In comparison, test `testConnectWithOpenSSLProvider`succeed, it uses `org.conscrypt.OpenSSLProvider` as security provider.
+4. When using java version >= 11, you could use system property to disable `certificate_authorities` extension to avoid the error: `mvn test -Djdk.tls.client.disableExtensions=certificate_authorities`.
